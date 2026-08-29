@@ -20,9 +20,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -53,34 +53,34 @@ import com.example.cardapiodigital.viewmodel.CardapioViewModel
  */
 
 private val AdminBackground =
-    Color(0xFFF5F5F3)
+    Color(0xFF050505)
 
 private val AdminSurface =
-    Color(0xFFFFFFFF)
+    Color(0xFF111111)
 
 private val AdminBorder =
-    Color(0xFFE2E2DE)
+    Color(0xFF3A3123)
 
 private val AdminText =
-    Color(0xFF171717)
+    Color(0xFFC6A15B)
 
 private val AdminTextSecondary =
-    Color(0xFF6B6B67)
+    Color(0xFFFFFFFF)
 
 private val AdminDark =
-    Color(0xFF181818)
+    Color(0xFFC6A15B)
 
 private val AdminGold =
-    Color(0xFFB08A48)
+    Color(0xFFC6A15B)
 
 private val AdminSoft =
-    Color(0xFFF0F0EC)
+    Color(0xFF191919)
 
 private val AdminGreen =
     Color(0xFF3E7652)
 
 private val AdminRed =
-    Color(0xFFB14646)
+    Color(0xFFD45A5A)
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -294,7 +294,7 @@ fun CardapiosAdminScreen(
                                 AdminDark,
 
                             contentColor =
-                                Color.White
+                                AdminBackground
                         ),
 
                     shape =
@@ -322,59 +322,59 @@ fun CardapiosAdminScreen(
             )
 
 
-            /*
-             * =================================================
-             * RESUMO
-             * =================================================
-             */
-
             Row(
                 modifier =
                     Modifier.fillMaxWidth(),
 
-                horizontalArrangement =
-                    Arrangement.spacedBy(
-                        14.dp
-                    )
+                verticalAlignment =
+                    Alignment.CenterVertically
             ) {
 
-                ResumoCardapioCard(
-                    titulo =
-                        "Total",
+                OutlinedTextField(
+                    value =
+                        busca,
 
-                    valor =
-                        cardapios.size.toString(),
+                    onValueChange = {
+                        busca = it
+                    },
 
                     modifier =
-                        Modifier.weight(1f)
+                        Modifier.weight(1.35f),
+
+                    label = {
+                        Text("Buscar cardápio")
+                    },
+
+                    placeholder = {
+                        Text("Nome ou descrição")
+                    },
+
+                    singleLine =
+                        true,
+
+                    shape =
+                        RoundedCornerShape(12.dp)
                 )
 
 
-                ResumoCardapioCard(
-                    titulo =
-                        "Personalizados",
-
-                    valor =
-                        personalizados.toString(),
-
+                Spacer(
                     modifier =
-                        Modifier.weight(1f)
+                        Modifier.width(16.dp)
                 )
 
 
-                ResumoCardapioCard(
-                    titulo =
-                        "Cardápio ativo",
+                ResumoCardapiosCompacto(
+                    total =
+                        cardapios.size,
 
-                    valor =
-                        cardapioAtivo?.nome
-                            ?: "Nenhum",
+                    personalizados =
+                        personalizados,
+
+                    ativo =
+                        cardapioAtivo?.nome,
 
                     modifier =
-                        Modifier.weight(2f),
-
-                    destacar =
-                        cardapioAtivo != null
+                        Modifier.weight(1f)
                 )
             }
 
@@ -382,72 +382,7 @@ fun CardapiosAdminScreen(
             Spacer(
                 modifier =
                     Modifier.height(
-                        22.dp
-                    )
-            )
-
-
-            /*
-             * =================================================
-             * BUSCA
-             * =================================================
-             */
-
-            OutlinedTextField(
-                value =
-                    busca,
-
-                onValueChange = {
-                    busca = it
-                },
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                label = {
-
-                    Text(
-                        text =
-                            "Buscar cardápio"
-                    )
-                },
-
-                placeholder = {
-
-                    Text(
-                        text =
-                            "Digite o nome ou descrição..."
-                    )
-                },
-
-                singleLine =
-                    true,
-
-                shape =
-                    RoundedCornerShape(
-                        12.dp
-                    )
-            )
-
-
-            Spacer(
-                modifier =
-                    Modifier.height(
-                        22.dp
-                    )
-            )
-
-
-            HorizontalDivider(
-                color =
-                    AdminBorder
-            )
-
-
-            Spacer(
-                modifier =
-                    Modifier.height(
-                        18.dp
+                        20.dp
                     )
             )
 
@@ -739,11 +674,11 @@ fun CardapiosAdminScreen(
 
 
 @Composable
-private fun ResumoCardapioCard(
-    titulo: String,
-    valor: String,
-    modifier: Modifier = Modifier,
-    destacar: Boolean = false
+private fun ResumoCardapiosCompacto(
+    total: Int,
+    personalizados: Int,
+    ativo: String?,
+    modifier: Modifier = Modifier
 ) {
 
     Card(
@@ -751,96 +686,61 @@ private fun ResumoCardapioCard(
             modifier,
 
         shape =
-            RoundedCornerShape(
-                14.dp
-            ),
+            RoundedCornerShape(12.dp),
 
         colors =
             CardDefaults.cardColors(
                 containerColor =
-                    if (destacar) {
-
-                        AdminGreen.copy(
-                            alpha = 0.07f
-                        )
-
-                    } else {
-
-                        AdminSurface
-                    }
+                    AdminSurface
             ),
 
         border =
             BorderStroke(
-                width =
-                    1.dp,
-
-                color =
-                    if (destacar) {
-
-                        AdminGreen.copy(
-                            alpha = 0.35f
-                        )
-
-                    } else {
-
-                        AdminBorder
-                    }
+                1.dp,
+                AdminBorder.copy(alpha = 0.7f)
             )
     ) {
 
         Column(
             modifier =
                 Modifier.padding(
-                    18.dp
+                    horizontal = 18.dp,
+                    vertical = 11.dp
                 )
         ) {
 
             Text(
                 text =
-                    titulo.uppercase(),
+                    "$total cardápios  •  $personalizados personalizados",
 
-                fontSize = 10.sp,
-
-                letterSpacing =
-                    1.sp,
-
-                fontWeight =
-                    FontWeight.Bold,
+                fontSize = 12.sp,
 
                 color =
-                    if (destacar) {
-                        AdminGreen
-                    } else {
-                        AdminTextSecondary
-                    }
+                    AdminTextSecondary
             )
 
 
             Spacer(
                 modifier =
-                    Modifier.height(
-                        5.dp
-                    )
+                    Modifier.height(4.dp)
             )
 
 
             Text(
                 text =
-                    valor,
+                    "Ativo: ${ativo ?: "nenhum"}",
 
-                fontSize =
-                    if (destacar) {
-                        17.sp
-                    } else {
-                        25.sp
-                    },
+                fontSize = 13.sp,
 
                 fontWeight =
-                    FontWeight.Bold,
+                    FontWeight.SemiBold,
 
                 color =
-                    AdminText,
+                    if (ativo == null) {
+                        AdminTextSecondary
+                    } else {
+                        AdminGreen
+                    },
 
                 maxLines = 1,
 
@@ -864,6 +764,10 @@ private fun CardapioAdminCard(
     val ativo =
         cardapio.ativo
 
+    var menuAberto by remember {
+        mutableStateOf(false)
+    }
+
 
     Card(
         modifier =
@@ -880,7 +784,7 @@ private fun CardapioAdminCard(
                     if (ativo) {
 
                         Color(
-                            0xFFFBFDFB
+                            0xFF101712
                         )
 
                     } else {
@@ -1038,69 +942,13 @@ private fun CardapioAdminCard(
                 }
 
 
-                /*
-                 * STATUS DIREITA
-                 */
-                if (ativo) {
-
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                color =
-                                    AdminGreen.copy(
-                                        alpha =
-                                            0.10f
-                                    ),
-
-                                shape =
-                                    RoundedCornerShape(
-                                        12.dp
-                                    )
-                            )
-                            .padding(
-                                horizontal =
-                                    14.dp,
-
-                                vertical =
-                                    9.dp
-                            )
-                    ) {
-
-                        Text(
-                            text =
-                                "Exibido no tablet",
-
-                            fontSize = 11.sp,
-
-                            fontWeight =
-                                FontWeight.SemiBold,
-
-                            color =
-                                AdminGreen
-                        )
-                    }
-                }
             }
 
 
             Spacer(
                 modifier =
                     Modifier.height(
-                        20.dp
-                    )
-            )
-
-
-            HorizontalDivider(
-                color =
-                    AdminBorder
-            )
-
-
-            Spacer(
-                modifier =
-                    Modifier.height(
-                        16.dp
+                        15.dp
                     )
             )
 
@@ -1116,9 +964,6 @@ private fun CardapioAdminCard(
                     Alignment.CenterVertically
             ) {
 
-                /*
-                 * AÇÃO PRINCIPAL
-                 */
                 Button(
                     onClick =
                         onGerenciarBebidas,
@@ -1129,7 +974,7 @@ private fun CardapioAdminCard(
                                 AdminDark,
 
                             contentColor =
-                                Color.White
+                                AdminBackground
                         ),
 
                     shape =
@@ -1140,7 +985,7 @@ private fun CardapioAdminCard(
 
                     Text(
                         text =
-                            "Gerenciar bebidas",
+                            "Abrir bebidas",
 
                         fontWeight =
                             FontWeight.SemiBold
@@ -1161,28 +1006,14 @@ private fun CardapioAdminCard(
                  */
                 if (!ativo) {
 
-                    OutlinedButton(
+                    TextButton(
                         onClick =
-                            onAtivar,
-
-                        border =
-                            BorderStroke(
-                                width =
-                                    1.dp,
-
-                                color =
-                                    AdminGreen
-                            ),
-
-                        shape =
-                            RoundedCornerShape(
-                                10.dp
-                            )
+                            onAtivar
                     ) {
 
                         Text(
                             text =
-                                "Ativar cardápio",
+                                "Ativar",
 
                             color =
                                 AdminGreen,
@@ -1200,63 +1031,60 @@ private fun CardapioAdminCard(
                 )
 
 
-                /*
-                 * EDITAR
-                 */
-                OutlinedButton(
-                    onClick =
-                        onEditar,
-
-                    shape =
-                        RoundedCornerShape(
-                            10.dp
-                        ),
-
-                    border =
-                        BorderStroke(
-                            width =
-                                1.dp,
-
-                            color =
-                                AdminBorder
-                        )
-                ) {
-
-                    Text(
-                        text =
-                            "Editar",
-
-                        color =
-                            AdminText
-                    )
-                }
-
-
-                /*
-                 * FIXO NÃO PODE SER EXCLUÍDO
-                 */
-                if (!cardapio.fixo) {
-
-                    Spacer(
-                        modifier =
-                            Modifier.width(
-                                5.dp
-                            )
-                    )
-
-
+                Box {
                     TextButton(
-                        onClick =
-                            onExcluir
+                        onClick = {
+                            menuAberto = true
+                        }
                     ) {
 
                         Text(
                             text =
-                                "Excluir",
+                                "Mais",
 
                             color =
-                                AdminRed
+                                AdminTextSecondary
                         )
+                    }
+
+
+                    DropdownMenu(
+                        expanded =
+                            menuAberto,
+
+                        onDismissRequest = {
+                            menuAberto = false
+                        }
+                    ) {
+
+                        DropdownMenuItem(
+                            text = {
+                                Text("Editar")
+                            },
+
+                            onClick = {
+                                menuAberto = false
+                                onEditar()
+                            }
+                        )
+
+
+                        if (!cardapio.fixo) {
+
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "Excluir",
+                                        color = AdminRed
+                                    )
+                                },
+
+                                onClick = {
+                                    menuAberto = false
+                                    onExcluir()
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -1409,7 +1237,7 @@ private fun EstadoVazioCardapios(
                                 AdminDark,
 
                             contentColor =
-                                Color.White
+                                AdminBackground
                         )
                 ) {
 
@@ -1654,7 +1482,7 @@ private fun FormularioCardapioDialog(
                             AdminDark,
 
                         contentColor =
-                            Color.White
+                            AdminBackground
                     )
             ) {
 

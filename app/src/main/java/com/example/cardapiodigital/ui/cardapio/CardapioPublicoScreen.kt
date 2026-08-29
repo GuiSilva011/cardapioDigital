@@ -1,33 +1,50 @@
 package com.example.cardapiodigital.ui.cardapio
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -52,30 +69,28 @@ import java.io.File
  */
 
 private val PretoPrincipal =
-    Color(0xFF0A0A0A)
+    Color(0xFF050505)
 
 private val PretoCard =
-    Color(0xFF141414)
+    Color(0xFF111111)
 
 private val PretoSecundario =
-    Color(0xFF1B1B1B)
+    Color(0xFF191919)
 
-private val OffWhite =
-    Color(0xFFE5E6E7)
-
-private val TextoSecundario =
-    Color(0xFFA8A8A8)
+private val Branco =
+    Color(0xFFFFFFFF)
 
 private val Dourado =
     Color(0xFFC6A15B)
 
 private val DouradoSuave =
-    Color(0xFF8F7442)
+    Color(0xFF9F8145)
 
 
 @Composable
 fun CardapioPublicoScreen(
     viewModel: CardapioViewModel,
+    onVoltarMenu: () -> Unit,
     onAbrirAdministracao: () -> Unit
 ) {
 
@@ -88,6 +103,18 @@ fun CardapioPublicoScreen(
     viewModel
         .bebidasCardapioAtivo
         .collectAsStateWithLifecycle()
+
+    var bebidaSelecionada by remember {
+        mutableStateOf<BebidaEntity?>(null)
+    }
+
+
+    BackHandler(
+        enabled =
+            bebidaSelecionada != null
+    ) {
+        bebidaSelecionada = null
+    }
 
 
     BoxWithConstraints(
@@ -116,104 +143,191 @@ fun CardapioPublicoScreen(
             }
 
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    PretoPrincipal
-                )
-        ) {
+        AnimatedContent(
+            targetState =
+                bebidaSelecionada,
 
-            /*
-             * CABEÇALHO
-             */
-            CardapioHeader(
-                nomeCardapio =
-                    cardapioAtivo?.nome
-                        ?: "Cardápio",
+            transitionSpec = {
 
-                descricao =
-                    cardapioAtivo?.descricao
-                        ?: "",
+                if (targetState != null) {
 
-                onAbrirAdministracao =
-                    onAbrirAdministracao
-            )
+                    (
+                            slideInHorizontally(
+                                animationSpec = tween(320)
+                            ) { largura ->
+                                largura / 5
+                            } +
+                                    fadeIn(
+                                        animationSpec = tween(
+                                            durationMillis = 260,
+                                            delayMillis = 40
+                                        )
+                                    )
+                            ) togetherWith
+                            (
+                                    slideOutHorizontally(
+                                        animationSpec = tween(220)
+                                    ) { largura ->
+                                        -largura / 6
+                                    } +
+                                            fadeOut(
+                                                animationSpec = tween(180)
+                                            )
+                                    )
 
+                } else {
 
-            /*
-             * CONTEÚDO
-             */
-            when {
+                    (
+                            slideInHorizontally(
+                                animationSpec = tween(300)
+                            ) { largura ->
+                                -largura / 5
+                            } +
+                                    fadeIn(
+                                        animationSpec = tween(
+                                            durationMillis = 240,
+                                            delayMillis = 30
+                                        )
+                                    )
+                            ) togetherWith
+                            (
+                                    slideOutHorizontally(
+                                        animationSpec = tween(220)
+                                    ) { largura ->
+                                        largura / 6
+                                    } +
+                                            fadeOut(
+                                                animationSpec = tween(180)
+                                            )
+                                    )
+                }
+            },
 
-                cardapioAtivo == null -> {
+            label =
+                "transicao_cardapio_detalhe"
+        ) { bebidaEmDetalhe ->
 
-                    EstadoVazio(
-                        titulo =
-                            "Nenhum cardápio ativo",
+            if (bebidaEmDetalhe == null) {
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            PretoPrincipal
+                        )
+                ) {
+
+                    /*
+                     * CABEÇALHO
+                     */
+                    CardapioHeader(
+                        nomeCardapio =
+                            cardapioAtivo?.nome
+                                ?: "Cardápio",
 
                         descricao =
-                            "Selecione um cardápio no painel administrativo."
+                            cardapioAtivo?.descricao
+                                ?: "",
+
+                        onVoltarMenu =
+                            onVoltarMenu,
+
+                        onAbrirAdministracao =
+                            onAbrirAdministracao
                     )
-                }
 
 
-                bebidas.isEmpty() -> {
+                    /*
+                     * CONTEÚDO
+                     */
+                    when {
 
-                    EstadoVazio(
-                        titulo =
-                            "Cardápio em preparação",
+                        cardapioAtivo == null -> {
 
-                        descricao =
-                            "As bebidas deste cardápio ainda não foram adicionadas."
-                    )
-                }
+                            EstadoVazio(
+                                titulo =
+                                    "Nenhum cardápio ativo",
 
-
-                else -> {
-
-                    LazyVerticalGrid(
-                        columns =
-                            GridCells.Fixed(
-                                quantidadeColunas
-                            ),
-
-                        modifier =
-                            Modifier.fillMaxSize(),
-
-                        contentPadding =
-                            PaddingValues(
-                                start = 42.dp,
-                                end = 42.dp,
-                                top = 18.dp,
-                                bottom = 48.dp
-                            ),
-
-                        horizontalArrangement =
-                            Arrangement.spacedBy(
-                                22.dp
-                            ),
-
-                        verticalArrangement =
-                            Arrangement.spacedBy(
-                                26.dp
+                                descricao =
+                                    "Selecione um cardápio no painel administrativo."
                             )
-                    ) {
+                        }
 
-                        items(
-                            items = bebidas,
 
-                            key = { bebida ->
-                                bebida.id
+                        bebidas.isEmpty() -> {
+
+                            EstadoVazio(
+                                titulo =
+                                    "Cardápio em preparação",
+
+                                descricao =
+                                    "As bebidas deste cardápio ainda não foram adicionadas."
+                            )
+                        }
+
+
+                        else -> {
+
+                            LazyVerticalGrid(
+                                columns =
+                                    GridCells.Fixed(
+                                        quantidadeColunas
+                                    ),
+
+                                modifier =
+                                    Modifier.fillMaxSize(),
+
+                                contentPadding =
+                                    PaddingValues(
+                                        start = 42.dp,
+                                        end = 42.dp,
+                                        top = 18.dp,
+                                        bottom = 48.dp
+                                    ),
+
+                                horizontalArrangement =
+                                    Arrangement.spacedBy(
+                                        22.dp
+                                    ),
+
+                                verticalArrangement =
+                                    Arrangement.spacedBy(
+                                        26.dp
+                                    )
+                            ) {
+
+                                items(
+                                    items = bebidas,
+
+                                    key = { bebida ->
+                                        bebida.id
+                                    }
+                                ) { bebida ->
+
+                                    BebidaCard(
+                                        bebida = bebida,
+
+                                        onClick = {
+                                            if (bebidaSelecionada == null) {
+                                                bebidaSelecionada = bebida
+                                            }
+                                        }
+                                    )
+                                }
                             }
-                        ) { bebida ->
-
-                            BebidaCard(
-                                bebida = bebida
-                            )
                         }
                     }
                 }
+
+            } else {
+
+                DetalheBebidaScreen(
+                    bebida = bebidaEmDetalhe,
+
+                    onVoltar = {
+                        bebidaSelecionada = null
+                    }
+                )
             }
         }
     }
@@ -224,6 +338,7 @@ fun CardapioPublicoScreen(
 private fun CardapioHeader(
     nomeCardapio: String,
     descricao: String,
+    onVoltarMenu: () -> Unit,
     onAbrirAdministracao: () -> Unit
 ) {
 
@@ -292,7 +407,7 @@ private fun CardapioHeader(
                         FontWeight.Bold,
 
                     color =
-                        OffWhite
+                        Dourado
                 )
 
 
@@ -317,53 +432,31 @@ private fun CardapioHeader(
 
                         lineHeight = 23.sp,
 
-                        color =
-                            TextoSecundario
+                        color = Branco
                     )
                 }
             }
 
 
-            /*
-             * ACESSO ADMINISTRATIVO
-             *
-             * TEMPORÁRIO.
-             *
-             * Depois substituiremos
-             * por acesso oculto + PIN.
-             */
-            Text(
-                text =
-                    "ADMIN",
+            Row(
+                horizontalArrangement =
+                    Arrangement.spacedBy(10.dp),
 
-                fontSize = 11.sp,
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
 
-                letterSpacing = 1.5.sp,
+                AcaoCardapioHeader(
+                    texto = "← MENU",
+                    onClick = onVoltarMenu
+                )
 
-                fontWeight =
-                    FontWeight.Medium,
 
-                color =
-                    Dourado,
-
-                modifier = Modifier
-                    .clip(
-                        RoundedCornerShape(
-                            10.dp
-                        )
-                    )
-                    .clickable {
-
-                        onAbrirAdministracao()
-                    }
-                    .background(
-                        PretoSecundario
-                    )
-                    .padding(
-                        horizontal = 16.dp,
-                        vertical = 10.dp
-                    )
-            )
+                AcaoCardapioHeader(
+                    texto = "ADMIN",
+                    onClick = onAbrirAdministracao
+                )
+            }
         }
 
 
@@ -421,12 +514,48 @@ private fun CardapioHeader(
 
 @Composable
 private fun BebidaCard(
-    bebida: BebidaEntity
+    bebida: BebidaEntity,
+    onClick: () -> Unit
 ) {
 
+    val interactionSource =
+        remember {
+            MutableInteractionSource()
+        }
+
+    val pressionado by
+    interactionSource
+        .collectIsPressedAsState()
+
+    val escala by
+    animateFloatAsState(
+        targetValue =
+            if (pressionado) {
+                0.97f
+            } else {
+                1f
+            },
+
+        animationSpec =
+            tween(120),
+
+        label =
+            "pressionar_card_bebida"
+    )
+
     Card(
-        modifier =
-            Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .scale(escala)
+            .clickable(
+                interactionSource =
+                    interactionSource,
+
+                indication =
+                    null,
+
+                onClick = onClick
+            ),
 
         shape =
             RoundedCornerShape(
@@ -468,48 +597,10 @@ private fun BebidaCard(
                     Alignment.Center
             ) {
 
-                val caminhoImagem =
-                    bebida.imagemPath
-
-
-                if (
-                    !caminhoImagem
-                        .isNullOrBlank()
-                ) {
-
-                    val arquivo =
-                        File(
-                            caminhoImagem
-                        )
-
-
-                    if (
-                        arquivo.exists()
-                    ) {
-
-                        AsyncImage(
-                            model =
-                                arquivo,
-
-                            contentDescription =
-                                bebida.nome,
-
-                            modifier =
-                                Modifier.fillMaxSize(),
-
-                            contentScale =
-                                ContentScale.Crop
-                        )
-
-                    } else {
-
-                        SemFoto()
-                    }
-
-                } else {
-
-                    SemFoto()
-                }
+                ImagemBebida(
+                    bebida = bebida,
+                    modifier = Modifier.fillMaxSize()
+                )
 
 
                 /*
@@ -556,8 +647,7 @@ private fun BebidaCard(
                     fontWeight =
                         FontWeight.SemiBold,
 
-                    color =
-                        OffWhite,
+                    color = Dourado,
 
                     maxLines = 2,
 
@@ -566,41 +656,352 @@ private fun BebidaCard(
                 )
 
 
-                if (
-                    bebida
-                        .descricao
-                        .isNotBlank()
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun DetalheBebidaScreen(
+    bebida: BebidaEntity,
+    onVoltar: () -> Unit
+) {
+
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                PretoPrincipal
+            )
+    ) {
+
+        val layoutLargo =
+            maxWidth >= 700.dp
+
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    start = 32.dp,
+                    end = 32.dp,
+                    top = 20.dp,
+                    bottom = 18.dp
+                )
+        ) {
+
+            Text(
+                text = "← VOLTAR AO CARDÁPIO",
+
+                fontSize = 11.sp,
+
+                letterSpacing = 1.3.sp,
+
+                fontWeight =
+                    FontWeight.Medium,
+
+                color =
+                    Dourado,
+
+                modifier = Modifier
+                    .clip(
+                        RoundedCornerShape(10.dp)
+                    )
+                    .clickable(
+                        onClick = onVoltar
+                    )
+                    .background(
+                        PretoSecundario
+                    )
+                    .padding(
+                        horizontal = 16.dp,
+                        vertical = 11.dp
+                    )
+            )
+
+
+            Spacer(
+                modifier =
+                    Modifier.height(20.dp)
+            )
+
+
+            if (layoutLargo) {
+
+                Row(
+                    modifier =
+                        Modifier.fillMaxSize(),
+
+                    horizontalArrangement =
+                        Arrangement.spacedBy(36.dp)
                 ) {
 
-                    Spacer(
-                        modifier =
-                            Modifier.height(
-                                9.dp
+                    ImagemBebida(
+                        bebida = bebida,
+
+                        modifier = Modifier
+                            .weight(0.42f)
+                            .fillMaxHeight()
+                            .clip(
+                                RoundedCornerShape(20.dp)
                             )
                     )
 
 
-                    Text(
-                        text =
-                            bebida.descricao,
+                    Column(
+                        modifier = Modifier
+                            .weight(0.58f)
+                            .fillMaxHeight()
+                            .padding(
+                                top = 28.dp,
+                                bottom = 12.dp
+                            ),
 
-                        fontSize = 15.sp,
+                        verticalArrangement =
+                            Arrangement.Top
+                    ) {
 
-                        lineHeight = 22.sp,
+                        TituloBebida(
+                            nome = bebida.nome
+                        )
 
-                        fontWeight =
-                            FontWeight.Normal,
 
-                        color =
-                            TextoSecundario,
+                        Spacer(
+                            modifier =
+                                Modifier.height(28.dp)
+                        )
 
-                        maxLines = 4,
 
-                        overflow =
-                            TextOverflow.Ellipsis
+                        DescricaoBebidaCard(
+                            bebida = bebida
+                        )
+                    }
+                }
+
+            } else {
+
+                Column(
+                    modifier =
+                        Modifier.fillMaxSize()
+                ) {
+
+                    TituloBebida(
+                        nome = bebida.nome
+                    )
+
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(16.dp)
+                    )
+
+
+                    ImagemBebida(
+                        bebida = bebida,
+
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .clip(
+                                RoundedCornerShape(18.dp)
+                            )
+                    )
+
+
+                    Spacer(
+                        modifier =
+                            Modifier.height(18.dp)
+                    )
+
+
+                    DescricaoBebidaCard(
+                        bebida = bebida
                     )
                 }
             }
+        }
+    }
+}
+
+
+@Composable
+private fun TituloBebida(
+    nome: String
+) {
+
+    Column(
+        modifier =
+            Modifier.width(IntrinsicSize.Max)
+    ) {
+
+        Text(
+            text =
+                nome,
+
+            fontSize = 36.sp,
+
+            lineHeight = 43.sp,
+
+            fontWeight =
+                FontWeight.Bold,
+
+            color =
+                Dourado,
+
+            maxLines = 2,
+
+            overflow =
+                TextOverflow.Ellipsis
+        )
+
+
+        Spacer(
+            modifier =
+                Modifier.height(12.dp)
+        )
+
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(2.dp)
+                .background(
+                    DouradoSuave
+                )
+        )
+    }
+}
+
+
+@Composable
+private fun DescricaoBebidaCard(
+    bebida: BebidaEntity
+) {
+
+    Card(
+        modifier =
+            Modifier.fillMaxWidth(),
+
+        shape =
+            RoundedCornerShape(14.dp),
+
+        colors =
+            CardDefaults.cardColors(
+                containerColor =
+                    PretoCard
+            ),
+
+        border =
+            BorderStroke(
+                width = 1.dp,
+                color = DouradoSuave.copy(alpha = 0.55f)
+            )
+    ) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = 20.dp,
+                    vertical = 18.dp
+                )
+        ) {
+
+            Text(
+                text =
+                    "DESCRIÇÃO DA BEBIDA",
+
+                fontSize = 15.sp,
+
+                letterSpacing = 1.sp,
+
+                fontWeight =
+                    FontWeight.Bold,
+
+                color =
+                    Dourado
+            )
+
+
+            Spacer(
+                modifier =
+                    Modifier.height(9.dp)
+            )
+
+
+            Text(
+                text =
+                    bebida.descricao
+                        .ifBlank {
+                            "Sem descrição cadastrada."
+                        },
+
+                fontSize = 17.sp,
+
+                lineHeight = 25.sp,
+
+                color =
+                    Branco
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun ImagemBebida(
+    bebida: BebidaEntity,
+    modifier: Modifier = Modifier
+) {
+
+    Box(
+        modifier = modifier
+            .background(
+                PretoSecundario
+            ),
+
+        contentAlignment =
+            Alignment.Center
+    ) {
+
+        val caminhoImagem =
+            bebida.imagemPath
+
+
+        if (
+            !caminhoImagem
+                .isNullOrBlank()
+        ) {
+
+            val arquivo =
+                File(caminhoImagem)
+
+
+            if (arquivo.exists()) {
+
+                AsyncImage(
+                    model =
+                        arquivo,
+
+                    contentDescription =
+                        bebida.nome,
+
+                    modifier =
+                        Modifier.fillMaxSize(),
+
+                    contentScale =
+                        ContentScale.Crop
+                )
+
+            } else {
+
+                SemFoto()
+            }
+
+        } else {
+
+            SemFoto()
         }
     }
 }
@@ -625,8 +1026,7 @@ private fun SemFoto() {
             fontWeight =
                 FontWeight.Medium,
 
-            color =
-                DouradoSuave
+            color = Branco
         )
     }
 }
@@ -693,8 +1093,7 @@ private fun EstadoVazio(
                 fontWeight =
                     FontWeight.SemiBold,
 
-                color =
-                    OffWhite,
+                color = Dourado,
 
                 textAlign =
                     TextAlign.Center
@@ -717,12 +1116,49 @@ private fun EstadoVazio(
 
                 lineHeight = 23.sp,
 
-                color =
-                    TextoSecundario,
+                color = Branco,
 
                 textAlign =
                     TextAlign.Center
             )
         }
     }
+}
+
+
+@Composable
+private fun AcaoCardapioHeader(
+    texto: String,
+    onClick: () -> Unit
+) {
+
+    Text(
+        text =
+            texto,
+
+        fontSize = 11.sp,
+
+        letterSpacing = 1.2.sp,
+
+        fontWeight =
+            FontWeight.Medium,
+
+        color =
+            Dourado,
+
+        modifier = Modifier
+            .clip(
+                RoundedCornerShape(10.dp)
+            )
+            .clickable(
+                onClick = onClick
+            )
+            .background(
+                PretoSecundario
+            )
+            .padding(
+                horizontal = 16.dp,
+                vertical = 10.dp
+            )
+    )
 }

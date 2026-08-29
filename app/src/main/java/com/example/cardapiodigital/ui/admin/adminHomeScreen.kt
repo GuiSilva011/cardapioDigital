@@ -1,6 +1,7 @@
 package com.example.cardapiodigital.ui.admin
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,9 +26,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.cardapiodigital.R
 
 
 /*
@@ -37,38 +41,37 @@ import androidx.compose.ui.unit.sp
  */
 
 private val AdminBackground =
-    Color(0xFFF5F5F3)
+    Color(0xFF050505)
 
 private val AdminSurface =
-    Color(0xFFFFFFFF)
+    Color(0xFF111111)
 
 private val AdminBorder =
-    Color(0xFFE2E2DE)
+    Color(0xFF3A3123)
 
 private val AdminText =
-    Color(0xFF171717)
+    Color(0xFFC6A15B)
 
 private val AdminTextSecondary =
-    Color(0xFF6B6B67)
+    Color(0xFFFFFFFF)
 
 private val AdminDark =
-    Color(0xFF181818)
-
-private val AdminDarkHover =
-    Color(0xFF292929)
+    Color(0xFFC6A15B)
 
 private val AdminGold =
-    Color(0xFFB08A48)
+    Color(0xFFC6A15B)
 
 private val AdminSoft =
-    Color(0xFFF0F0EC)
+    Color(0xFF191919)
 
 
 @Composable
 fun AdminHomeScreen(
     onAbrirBebidas: () -> Unit,
     onAbrirCardapios: () -> Unit,
-    onSair: () -> Unit
+    onVoltarMenu: () -> Unit,
+    onExibirCardapio: () -> Unit,
+    onAlterarPin: () -> Unit
 ) {
 
     BoxWithConstraints(
@@ -180,32 +183,54 @@ fun AdminHomeScreen(
                 }
 
 
-                Button(
-                    onClick =
-                        onSair,
+                Row(
+                    horizontalArrangement =
+                        Arrangement.spacedBy(10.dp),
 
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor =
-                                AdminDark,
-
-                            contentColor =
-                                Color.White
-                        ),
-
-                    shape =
-                        RoundedCornerShape(
-                            12.dp
-                        )
+                    verticalAlignment =
+                        Alignment.CenterVertically
                 ) {
 
-                    Text(
-                        text =
-                            "Exibir cardápio",
+                    TextButton(
+                        onClick =
+                            onVoltarMenu
+                    ) {
 
-                        fontWeight =
-                            FontWeight.SemiBold
-                    )
+                        Text(
+                            text =
+                                "← Menu principal",
+
+                            color =
+                                AdminTextSecondary
+                        )
+                    }
+
+
+                    Button(
+                        onClick =
+                            onExibirCardapio,
+
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor =
+                                    AdminDark,
+
+                                contentColor =
+                                    AdminBackground
+                            ),
+
+                        shape =
+                            RoundedCornerShape(12.dp)
+                    ) {
+
+                        Text(
+                            text =
+                                "Exibir cardápio",
+
+                            fontWeight =
+                                FontWeight.SemiBold
+                        )
+                    }
                 }
             }
 
@@ -281,19 +306,17 @@ fun AdminHomeScreen(
                 ) {
 
                     AdminOpcaoCard(
-                        numero = "01",
-
                         titulo =
                             "Bebidas",
 
                         descricao =
                             "Cadastre fotos, nomes e descrições das bebidas disponíveis.",
 
-                        destaque =
-                            "Gerencie o catálogo de bebidas",
-
                         textoBotao =
                             "Gerenciar bebidas",
+
+                        imageRes =
+                            R.drawable.bg_bebidas,
 
                         onClick =
                             onAbrirBebidas,
@@ -304,19 +327,17 @@ fun AdminHomeScreen(
 
 
                     AdminOpcaoCard(
-                        numero = "02",
-
                         titulo =
-                            "Cardápios",
+                            "Menus personalizados",
 
                         descricao =
                             "Gerencie o cardápio fixo e crie versões personalizadas para eventos.",
 
-                        destaque =
-                            "Monte cardápios personalizados",
-
                         textoBotao =
                             "Gerenciar cardápios",
+
+                        imageRes =
+                            R.drawable.bg_cardapio,
 
                         onClick =
                             onAbrirCardapios,
@@ -336,19 +357,17 @@ fun AdminHomeScreen(
                 ) {
 
                     AdminOpcaoCard(
-                        numero = "01",
-
                         titulo =
                             "Bebidas",
 
                         descricao =
                             "Cadastre fotos, nomes e descrições das bebidas disponíveis.",
 
-                        destaque =
-                            "Gerencie o catálogo de bebidas",
-
                         textoBotao =
                             "Gerenciar bebidas",
+
+                        imageRes =
+                            R.drawable.bg_bebidas,
 
                         onClick =
                             onAbrirBebidas,
@@ -359,19 +378,17 @@ fun AdminHomeScreen(
 
 
                     AdminOpcaoCard(
-                        numero = "02",
-
                         titulo =
-                            "Cardápios",
+                            "Menus personalizados",
 
                         descricao =
                             "Gerencie o cardápio fixo e crie versões personalizadas para eventos.",
 
-                        destaque =
-                            "Monte cardápios personalizados",
-
                         textoBotao =
                             "Gerenciar cardápios",
+
+                        imageRes =
+                            R.drawable.bg_cardapio,
 
                         onClick =
                             onAbrirCardapios,
@@ -514,6 +531,24 @@ fun AdminHomeScreen(
                                 AdminTextSecondary
                         )
                     }
+
+
+                    TextButton(
+                        onClick =
+                            onAlterarPin
+                    ) {
+
+                        Text(
+                            text =
+                                "Alterar PIN",
+
+                            fontWeight =
+                                FontWeight.SemiBold,
+
+                            color =
+                                AdminGold
+                        )
+                    }
                 }
             }
         }
@@ -523,13 +558,12 @@ fun AdminHomeScreen(
 
 @Composable
 private fun AdminOpcaoCard(
-    numero: String,
     titulo: String,
     descricao: String,
-    destaque: String,
     textoBotao: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    imageRes: Int? = null
 ) {
 
     Card(
@@ -552,41 +586,103 @@ private fun AdminOpcaoCard(
         border =
             BorderStroke(
                 width = 1.dp,
-                color =
-                    AdminBorder
+                color = AdminGold.copy(
+                    alpha = 0.45f
+                )
             )
     ) {
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(
-                    26.dp
-                )
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
 
-            /*
-             * Número / identificação
-             */
-            Row(
-                modifier =
-                    Modifier.fillMaxWidth(),
+            if (imageRes != null) {
 
-                verticalAlignment =
-                    Alignment.CenterVertically
+                Image(
+                    painter =
+                        painterResource(
+                            id = imageRes
+                        ),
+
+                    contentDescription =
+                        null,
+
+                    modifier =
+                        Modifier.fillMaxSize(),
+
+                    contentScale =
+                        ContentScale.Crop
+                )
+
+
+                // Overlay para legibilidade
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Color.Black.copy(
+                                alpha = 0.55f
+                            )
+                        )
+                )
+            }
+
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        26.dp
+                    )
             ) {
 
+                /*
+                 * Título
+                 */
                 Text(
                     text =
-                        numero,
+                        titulo,
 
-                    fontSize = 12.sp,
+                    fontSize = 26.sp,
 
                     fontWeight =
                         FontWeight.Bold,
 
                     color =
-                        AdminGold
+                        if (imageRes == null)
+                            AdminText
+                        else
+                            AdminGold
+                )
+
+
+                Spacer(
+                    modifier =
+                        Modifier.height(
+                            10.dp
+                        )
+                )
+
+
+                /*
+                 * Descrição
+                 */
+                Text(
+                    text =
+                        descricao,
+
+                    fontSize = 15.sp,
+
+                    lineHeight =
+                        22.sp,
+
+                    color =
+                        if (imageRes == null)
+                            AdminTextSecondary
+                        else
+                            Color.White.copy(
+                                alpha = 0.85f
+                            )
                 )
 
 
@@ -596,117 +692,41 @@ private fun AdminOpcaoCard(
                 )
 
 
-                Text(
-                    text =
-                        destaque.uppercase(),
-
-                    fontSize = 10.sp,
-
-                    letterSpacing =
-                        0.8.sp,
-
-                    fontWeight =
-                        FontWeight.Medium,
-
-                    color =
-                        AdminTextSecondary
+                Spacer(
+                    modifier =
+                        Modifier.height(
+                            24.dp
+                        )
                 )
-            }
 
 
-            Spacer(
-                modifier =
-                    Modifier.height(
-                        24.dp
+                /*
+                 * Botão
+                 */
+                Button(
+                    onClick =
+                        onClick,
+
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = AdminGold,
+                            contentColor = AdminBackground
+                        ),
+
+                    shape =
+                        RoundedCornerShape(
+                            11.dp
+                        )
+                ) {
+
+                    Text(
+                        text =
+                            textoBotao,
+
+                        fontWeight =
+                            FontWeight.SemiBold
                     )
-            )
-
-
-            /*
-             * Título
-             */
-            Text(
-                text =
-                    titulo,
-
-                fontSize = 26.sp,
-
-                fontWeight =
-                    FontWeight.Bold,
-
-                color =
-                    AdminText
-            )
-
-
-            Spacer(
-                modifier =
-                    Modifier.height(
-                        10.dp
-                    )
-            )
-
-
-            /*
-             * Descrição
-             */
-            Text(
-                text =
-                    descricao,
-
-                fontSize = 15.sp,
-
-                lineHeight =
-                    22.sp,
-
-                color =
-                    AdminTextSecondary
-            )
-
-
-            Spacer(
-                modifier =
-                    Modifier.weight(1f)
-            )
-
-
-            Spacer(
-                modifier =
-                    Modifier.height(
-                        24.dp
-                    )
-            )
-
-
-            /*
-             * Botão
-             */
-            Button(
-                onClick =
-                    onClick,
-
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor =
-                            AdminDark,
-
-                        contentColor =
-                            Color.White
-                    ),
-
-                shape =
-                    RoundedCornerShape(
-                        11.dp
-                    )
-            ) {
-
-                Text(
-                    text =
-                        textoBotao,
-
-                    fontWeight =
-                        FontWeight.SemiBold
-                )
+                }
             }
         }
     }

@@ -60,34 +60,34 @@ import java.io.File
  */
 
 private val AdminBackground =
-    Color(0xFFF5F5F3)
+    Color(0xFF050505)
 
 private val AdminSurface =
-    Color(0xFFFFFFFF)
+    Color(0xFF111111)
 
 private val AdminBorder =
-    Color(0xFFE2E2DE)
+    Color(0xFF3A3123)
 
 private val AdminText =
-    Color(0xFF171717)
+    Color(0xFFC6A15B)
 
 private val AdminTextSecondary =
-    Color(0xFF6B6B67)
+    Color(0xFFFFFFFF)
 
 private val AdminDark =
-    Color(0xFF181818)
+    Color(0xFFC6A15B)
 
 private val AdminGold =
-    Color(0xFFB08A48)
+    Color(0xFFC6A15B)
 
 private val AdminSoft =
-    Color(0xFFF0F0EC)
+    Color(0xFF191919)
 
 private val AdminGreen =
     Color(0xFF3E7652)
 
 private val AdminDisabled =
-    Color(0xFF969692)
+    Color(0xFF8A8A8A)
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -807,7 +807,7 @@ private fun BotaoFiltroSelecao(
                         AdminDark,
 
                     contentColor =
-                        Color.White
+                        AdminBackground
                 ),
 
             shape =
@@ -1502,7 +1502,7 @@ private fun BarraSalvarCardapio(
                             AdminDark,
 
                         contentColor =
-                            Color.White
+                            AdminBackground
                     ),
 
                 shape =

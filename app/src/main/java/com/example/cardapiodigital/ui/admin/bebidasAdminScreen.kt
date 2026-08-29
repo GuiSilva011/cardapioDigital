@@ -26,8 +26,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -65,34 +66,34 @@ import java.io.File
  */
 
 private val AdminBackground =
-    Color(0xFFF5F5F3)
+    Color(0xFF050505)
 
 private val AdminSurface =
-    Color(0xFFFFFFFF)
+    Color(0xFF111111)
 
 private val AdminBorder =
-    Color(0xFFE2E2DE)
+    Color(0xFF3A3123)
 
 private val AdminText =
-    Color(0xFF171717)
+    Color(0xFFC6A15B)
 
 private val AdminTextSecondary =
-    Color(0xFF6B6B67)
+    Color(0xFFFFFFFF)
 
 private val AdminDark =
-    Color(0xFF181818)
+    Color(0xFFC6A15B)
 
 private val AdminGold =
-    Color(0xFFB08A48)
+    Color(0xFFC6A15B)
 
 private val AdminSoft =
-    Color(0xFFF0F0EC)
+    Color(0xFF191919)
 
 private val AdminGreen =
     Color(0xFF3E7652)
 
 private val AdminRed =
-    Color(0xFFB14646)
+    Color(0xFFD45A5A)
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -299,7 +300,7 @@ fun BebidasAdminScreen(
                                 AdminDark,
 
                             contentColor =
-                                Color.White
+                                AdminBackground
                         ),
 
                     shape =
@@ -327,53 +328,53 @@ fun BebidasAdminScreen(
             )
 
 
-            /*
-             * =================================================
-             * RESUMO
-             * =================================================
-             */
-
             Row(
                 modifier =
                     Modifier.fillMaxWidth(),
 
-                horizontalArrangement =
-                    Arrangement.spacedBy(
-                        14.dp
-                    )
+                verticalAlignment =
+                    Alignment.CenterVertically
             ) {
 
-                ResumoBebidasCard(
-                    titulo =
-                        "Total",
+                OutlinedTextField(
+                    value =
+                        busca,
 
-                    valor =
-                        bebidas.size.toString(),
+                    onValueChange = {
+                        busca = it
+                    },
 
                     modifier =
-                        Modifier.weight(1f)
+                        Modifier.weight(1.35f),
+
+                    singleLine =
+                        true,
+
+                    label = {
+                        Text("Buscar bebida")
+                    },
+
+                    placeholder = {
+                        Text("Nome ou descrição")
+                    },
+
+                    shape =
+                        RoundedCornerShape(12.dp)
                 )
 
 
-                ResumoBebidasCard(
-                    titulo =
-                        "Ativas",
-
-                    valor =
-                        quantidadeAtivas.toString(),
-
+                Spacer(
                     modifier =
-                        Modifier.weight(1f)
+                        Modifier.width(16.dp)
                 )
 
 
-                ResumoBebidasCard(
-                    titulo =
-                        "Inativas",
+                ResumoBebidasCompacto(
+                    total =
+                        bebidas.size,
 
-                    valor =
-                        (bebidas.size - quantidadeAtivas)
-                            .toString(),
+                    ativas =
+                        quantidadeAtivas,
 
                     modifier =
                         Modifier.weight(1f)
@@ -384,72 +385,7 @@ fun BebidasAdminScreen(
             Spacer(
                 modifier =
                     Modifier.height(
-                        22.dp
-                    )
-            )
-
-
-            /*
-             * =================================================
-             * PESQUISA
-             * =================================================
-             */
-
-            OutlinedTextField(
-                value =
-                    busca,
-
-                onValueChange = {
-                    busca = it
-                },
-
-                modifier =
-                    Modifier.fillMaxWidth(),
-
-                singleLine =
-                    true,
-
-                label = {
-
-                    Text(
-                        text =
-                            "Buscar bebida"
-                    )
-                },
-
-                placeholder = {
-
-                    Text(
-                        text =
-                            "Digite o nome ou descrição..."
-                    )
-                },
-
-                shape =
-                    RoundedCornerShape(
-                        12.dp
-                    )
-            )
-
-
-            Spacer(
-                modifier =
-                    Modifier.height(
-                        22.dp
-                    )
-            )
-
-
-            HorizontalDivider(
-                color =
-                    AdminBorder
-            )
-
-
-            Spacer(
-                modifier =
-                    Modifier.height(
-                        18.dp
+                        20.dp
                     )
             )
 
@@ -749,9 +685,9 @@ fun BebidasAdminScreen(
 
 
 @Composable
-private fun ResumoBebidasCard(
-    titulo: String,
-    valor: String,
+private fun ResumoBebidasCompacto(
+    total: Int,
+    ativas: Int,
     modifier: Modifier = Modifier
 ) {
 
@@ -760,9 +696,7 @@ private fun ResumoBebidasCard(
             modifier,
 
         shape =
-            RoundedCornerShape(
-                14.dp
-            ),
+            RoundedCornerShape(12.dp),
 
         colors =
             CardDefaults.cardColors(
@@ -772,32 +706,24 @@ private fun ResumoBebidasCard(
 
         border =
             BorderStroke(
-                width =
-                    1.dp,
-
-                color =
-                    AdminBorder
+                1.dp,
+                AdminBorder.copy(alpha = 0.7f)
             )
     ) {
 
         Column(
             modifier =
                 Modifier.padding(
-                    18.dp
+                    horizontal = 18.dp,
+                    vertical = 11.dp
                 )
         ) {
 
             Text(
                 text =
-                    titulo.uppercase(),
+                    "$total bebidas no catálogo",
 
-                fontSize = 10.sp,
-
-                letterSpacing =
-                    1.sp,
-
-                fontWeight =
-                    FontWeight.Bold,
+                fontSize = 12.sp,
 
                 color =
                     AdminTextSecondary
@@ -806,23 +732,21 @@ private fun ResumoBebidasCard(
 
             Spacer(
                 modifier =
-                    Modifier.height(
-                        5.dp
-                    )
+                    Modifier.height(4.dp)
             )
 
 
             Text(
                 text =
-                    valor,
+                    "$ativas ativas  •  ${total - ativas} inativas",
 
-                fontSize = 25.sp,
+                fontSize = 13.sp,
 
                 fontWeight =
-                    FontWeight.Bold,
+                    FontWeight.SemiBold,
 
                 color =
-                    AdminText
+                    AdminGreen
             )
         }
     }
@@ -836,6 +760,10 @@ private fun BebidaAdminCard(
     onExcluir: () -> Unit,
     onAlterarStatus: (Boolean) -> Unit
 ) {
+
+    var menuAberto by remember {
+        mutableStateOf(false)
+    }
 
     Card(
         modifier =
@@ -866,7 +794,7 @@ private fun BebidaAdminCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    18.dp
+                    16.dp
                 ),
 
             verticalAlignment =
@@ -879,7 +807,7 @@ private fun BebidaAdminCard(
             Box(
                 modifier = Modifier
                     .size(
-                        104.dp
+                        88.dp
                     )
                     .clip(
                         RoundedCornerShape(
@@ -942,7 +870,7 @@ private fun BebidaAdminCard(
             Spacer(
                 modifier =
                     Modifier.width(
-                        20.dp
+                        16.dp
                     )
             )
 
@@ -955,43 +883,23 @@ private fun BebidaAdminCard(
                     Modifier.weight(1f)
             ) {
 
-                Row(
-                    verticalAlignment =
-                        Alignment.CenterVertically
-                ) {
+                Text(
+                    text =
+                        bebida.nome,
 
-                    Text(
-                        text =
-                            bebida.nome,
+                    fontSize = 19.sp,
 
-                        fontSize = 19.sp,
+                    fontWeight =
+                        FontWeight.SemiBold,
 
-                        fontWeight =
-                            FontWeight.SemiBold,
+                    color =
+                        AdminText,
 
-                        color =
-                            AdminText,
+                    maxLines = 1,
 
-                        maxLines = 1,
-
-                        overflow =
-                            TextOverflow.Ellipsis
-                    )
-
-
-                    Spacer(
-                        modifier =
-                            Modifier.width(
-                                10.dp
-                            )
-                    )
-
-
-                    StatusBebida(
-                        ativo =
-                            bebida.ativo
-                    )
-                }
+                    overflow =
+                        TextOverflow.Ellipsis
+                )
 
 
                 if (
@@ -1032,7 +940,7 @@ private fun BebidaAdminCard(
             Spacer(
                 modifier =
                     Modifier.width(
-                        18.dp
+                        16.dp
                     )
             )
 
@@ -1050,7 +958,7 @@ private fun BebidaAdminCard(
                         if (
                             bebida.ativo
                         ) {
-                            "Exibir"
+                            "Visível"
                         } else {
                             "Oculta"
                         },
@@ -1080,122 +988,58 @@ private fun BebidaAdminCard(
             )
 
 
-            /*
-             * AÇÕES
-             */
-            OutlinedButton(
-                onClick =
-                    onEditar,
+            Box {
 
-                shape =
-                    RoundedCornerShape(
-                        10.dp
-                    ),
+                TextButton(
+                    onClick = {
+                        menuAberto = true
+                    }
+                ) {
 
-                border =
-                    BorderStroke(
-                        1.dp,
-                        AdminBorder
+                    Text(
+                        text = "Mais",
+                        color = AdminTextSecondary
                     )
-            ) {
-
-                Text(
-                    text =
-                        "Editar",
-
-                    color =
-                        AdminText
-                )
-            }
+                }
 
 
-            Spacer(
-                modifier =
-                    Modifier.width(
-                        6.dp
+                DropdownMenu(
+                    expanded =
+                        menuAberto,
+
+                    onDismissRequest = {
+                        menuAberto = false
+                    }
+                ) {
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("Editar")
+                        },
+
+                        onClick = {
+                            menuAberto = false
+                            onEditar()
+                        }
                     )
-            )
 
 
-            TextButton(
-                onClick =
-                    onExcluir
-            ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = "Excluir",
+                                color = AdminRed
+                            )
+                        },
 
-                Text(
-                    text =
-                        "Excluir",
-
-                    color =
-                        AdminRed
-                )
+                        onClick = {
+                            menuAberto = false
+                            onExcluir()
+                        }
+                    )
+                }
             }
         }
-    }
-}
-
-
-@Composable
-private fun StatusBebida(
-    ativo: Boolean
-) {
-
-    Box(
-        modifier = Modifier
-            .background(
-                color =
-                    if (ativo) {
-
-                        AdminGreen.copy(
-                            alpha =
-                                0.10f
-                        )
-
-                    } else {
-
-                        AdminTextSecondary.copy(
-                            alpha =
-                                0.10f
-                        )
-                    },
-
-                shape =
-                    RoundedCornerShape(
-                        20.dp
-                    )
-            )
-            .padding(
-                horizontal =
-                    9.dp,
-
-                vertical =
-                    4.dp
-            )
-    ) {
-
-        Text(
-            text =
-                if (ativo) {
-                    "ATIVA"
-                } else {
-                    "INATIVA"
-                },
-
-            fontSize = 9.sp,
-
-            letterSpacing =
-                0.7.sp,
-
-            fontWeight =
-                FontWeight.Bold,
-
-            color =
-                if (ativo) {
-                    AdminGreen
-                } else {
-                    AdminTextSecondary
-                }
-        )
     }
 }
 
@@ -1314,7 +1158,7 @@ private fun EstadoVazioBebidas(
                                 AdminDark,
 
                             contentColor =
-                                Color.White
+                                AdminBackground
                         )
                 ) {
 
@@ -1664,7 +1508,7 @@ private fun FormularioBebidaDialog(
                             AdminDark,
 
                         contentColor =
-                            Color.White
+                            AdminBackground
                     )
             ) {
 

@@ -1,9 +1,16 @@
 package com.example.cardapiodigital
 
 import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,7 +19,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -21,14 +29,25 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.cardapiodigital.data.security.AdminAccessDialog
+import com.example.cardapiodigital.data.security.AdminPinStore
+import com.example.cardapiodigital.data.security.AlterarAdminPinDialog
 import com.example.cardapiodigital.ui.admin.AdminHomeScreen
 import com.example.cardapiodigital.ui.admin.BebidasAdminScreen
 import com.example.cardapiodigital.ui.admin.CardapiosAdminScreen
@@ -37,6 +56,22 @@ import com.example.cardapiodigital.ui.cardapio.CardapioPublicoScreen
 import com.example.cardapiodigital.ui.theme.CardapioDigitalTheme
 import com.example.cardapiodigital.viewmodel.BebidaViewModel
 import com.example.cardapiodigital.viewmodel.CardapioViewModel
+
+
+private val MenuBackground =
+    Color(0xFF050505)
+
+private val MenuCard =
+    Color(0xFF111111)
+
+private val MenuGold =
+    Color(0xFFC6A15B)
+
+private val MenuGoldSoft =
+    Color(0xFF9F8145)
+
+private val MenuWhite =
+    Color(0xFFFFFFFF)
 
 
 class MainActivity : ComponentActivity() {
@@ -64,6 +99,16 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AplicativoCardapio() {
 
+    val context =
+        LocalContext.current
+
+    val adminPinStore =
+        remember {
+            AdminPinStore(
+                context.applicationContext
+            )
+        }
+
     /*
      * VIEWMODELS
      */
@@ -79,6 +124,24 @@ fun AplicativoCardapio() {
      */
     var telaAtual by rememberSaveable {
         mutableStateOf("inicio")
+    }
+
+    var adminDesbloqueado by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var pinConfigurado by rememberSaveable {
+        mutableStateOf(
+            adminPinStore.possuiPin()
+        )
+    }
+
+    var mostrarDialogAcessoAdmin by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var mostrarDialogAlterarPin by rememberSaveable {
+        mutableStateOf(false)
     }
 
 
@@ -98,6 +161,28 @@ fun AplicativoCardapio() {
     /*
      * NAVEGAÇÃO
      */
+    BackHandler(
+        enabled =
+            telaAtual != "inicio"
+    ) {
+
+        telaAtual =
+            when (telaAtual) {
+                "bebidas",
+                "cardapios" -> "admin"
+
+                "selecionar_bebidas" -> "cardapios"
+
+                "admin" -> {
+                    adminDesbloqueado = false
+                    "inicio"
+                }
+
+                else -> "inicio"
+            }
+    }
+
+
     when (telaAtual) {
 
         /*
@@ -110,15 +195,15 @@ fun AplicativoCardapio() {
             TelaInicial(
 
                 /*
-                 * Agora o botão Visualizar cardápio
-                 * realmente abre a tela pública.
+                 * A opção Visualizar cardápio
+                 * abre a tela pública.
                  */
                 onAbrirCardapio = {
                     telaAtual = "cardapio_publico"
                 },
 
                 onAbrirAdministracao = {
-                    telaAtual = "admin"
+                    mostrarDialogAcessoAdmin = true
                 }
             )
         }
@@ -136,8 +221,12 @@ fun AplicativoCardapio() {
             CardapioPublicoScreen(
                 viewModel = cardapioViewModel,
 
+                onVoltarMenu = {
+                    telaAtual = "inicio"
+                },
+
                 onAbrirAdministracao = {
-                    telaAtual = "admin"
+                    mostrarDialogAcessoAdmin = true
                 }
             )
         }
@@ -160,13 +249,18 @@ fun AplicativoCardapio() {
                     telaAtual = "cardapios"
                 },
 
-                /*
-                 * O botão "Exibir cardápio"
-                 * do painel agora abre diretamente
-                 * o cardápio público.
-                 */
-                onSair = {
+                onVoltarMenu = {
+                    adminDesbloqueado = false
+                    telaAtual = "inicio"
+                },
+
+                onExibirCardapio = {
+                    adminDesbloqueado = false
                     telaAtual = "cardapio_publico"
+                },
+
+                onAlterarPin = {
+                    mostrarDialogAlterarPin = true
                 }
             )
         }
@@ -241,6 +335,75 @@ fun AplicativoCardapio() {
             )
         }
     }
+
+    if (mostrarDialogAcessoAdmin) {
+        AdminAccessDialog(
+            pinConfigurado =
+                pinConfigurado,
+
+            onDismiss = {
+                mostrarDialogAcessoAdmin = false
+            },
+
+            onValidarPin = { pin ->
+                adminPinStore.validarPin(pin)
+            },
+
+            onCriarPin = { pin ->
+                adminPinStore.salvarPin(pin)
+                pinConfigurado = true
+
+                Toast.makeText(
+                    context,
+                    "PIN administrativo criado.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            },
+
+            onAcessoLiberado = {
+                adminDesbloqueado = true
+                mostrarDialogAcessoAdmin = false
+                telaAtual = "admin"
+            }
+        )
+    }
+
+    if (
+        mostrarDialogAlterarPin &&
+        adminDesbloqueado
+    ) {
+        AlterarAdminPinDialog(
+            onDismiss = {
+                mostrarDialogAlterarPin = false
+            },
+
+            onAlterarPin = { pinAtual, novoPin ->
+                if (
+                    adminPinStore.validarPin(
+                        pinAtual
+                    )
+                ) {
+                    adminPinStore.salvarPin(
+                        novoPin
+                    )
+
+                    true
+                } else {
+                    false
+                }
+            },
+
+            onPinAlterado = {
+                mostrarDialogAlterarPin = false
+
+                Toast.makeText(
+                    context,
+                    "PIN alterado com sucesso.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        )
+    }
 }
 
 
@@ -253,6 +416,10 @@ private fun TelaInicial(
 
     BoxWithConstraints(
         modifier = modifier
+            .fillMaxSize()
+            .background(
+                MenuBackground
+            )
     ) {
 
         val layoutTablet =
@@ -295,10 +462,7 @@ private fun TelaInicial(
                     fontWeight =
                         FontWeight.Bold,
 
-                    color =
-                        MaterialTheme
-                            .colorScheme
-                            .onBackground
+                    color = MenuGold
                 )
 
 
@@ -308,10 +472,7 @@ private fun TelaInicial(
 
                     fontSize = 17.sp,
 
-                    color =
-                        MaterialTheme
-                            .colorScheme
-                            .onSurfaceVariant
+                    color = MenuWhite
                 )
             }
 
@@ -339,8 +500,8 @@ private fun TelaInicial(
                         descricao =
                             "Modo de apresentação utilizado pelos clientes.",
 
-                        textoBotao =
-                            "Abrir cardápio",
+                        imagemRes =
+                            R.drawable.cardapio_bebida,
 
                         modifier =
                             Modifier.weight(1f),
@@ -360,8 +521,8 @@ private fun TelaInicial(
                         descricao =
                             "Cadastro de bebidas e gerenciamento dos cardápios.",
 
-                        textoBotao =
-                            "Abrir administração",
+                        imagemRes =
+                            R.drawable.admin,
 
                         modifier =
                             Modifier.weight(1f),
@@ -391,8 +552,8 @@ private fun TelaInicial(
                         descricao =
                             "Modo de apresentação utilizado pelos clientes.",
 
-                        textoBotao =
-                            "Abrir cardápio",
+                        imagemRes =
+                            R.drawable.cardapio_bebida,
 
                         modifier =
                             Modifier.fillMaxWidth(),
@@ -412,8 +573,8 @@ private fun TelaInicial(
                         descricao =
                             "Cadastro de bebidas e gerenciamento dos cardápios.",
 
-                        textoBotao =
-                            "Abrir administração",
+                        imagemRes =
+                            R.drawable.admin,
 
                         modifier =
                             Modifier.fillMaxWidth(),
@@ -432,7 +593,7 @@ private fun TelaInicial(
 private fun OpcaoInicial(
     titulo: String,
     descricao: String,
-    textoBotao: String,
+    imagemRes: Int,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
@@ -440,14 +601,27 @@ private fun OpcaoInicial(
     Card(
         modifier = modifier
             .heightIn(
-                min = 220.dp
+                min = 250.dp
+            )
+            .clickable(
+                onClick = onClick
+            ),
+
+        shape =
+            RoundedCornerShape(
+                20.dp
             ),
 
         colors = CardDefaults.cardColors(
             containerColor =
-                MaterialTheme
-                    .colorScheme
-                    .surfaceContainer
+                MenuCard
+        ),
+
+        border = BorderStroke(
+            width = 1.dp,
+            color = MenuGoldSoft.copy(
+                alpha = 0.55f
+            )
         )
     ) {
 
@@ -457,8 +631,47 @@ private fun OpcaoInicial(
                 .padding(28.dp),
 
             verticalArrangement =
-                Arrangement.spacedBy(16.dp)
+                Arrangement.spacedBy(14.dp),
+
+            horizontalAlignment =
+                Alignment.CenterHorizontally
         ) {
+
+            Box(
+                modifier = Modifier
+                    .size(112.dp)
+                    .background(
+                        color = MenuGold.copy(
+                            alpha = 0.10f
+                        ),
+                        shape = RoundedCornerShape(
+                            24.dp
+                        )
+                    ),
+
+                contentAlignment =
+                    Alignment.Center
+            ) {
+
+                Image(
+                    painter = painterResource(
+                        id = imagemRes
+                    ),
+
+                    contentDescription = titulo,
+
+                    modifier =
+                        Modifier.size(78.dp),
+
+                    contentScale =
+                        ContentScale.Fit,
+
+                    colorFilter =
+                        ColorFilter.tint(
+                            MenuGold
+                        )
+                )
+            }
 
             Text(
                 text = titulo,
@@ -466,7 +679,12 @@ private fun OpcaoInicial(
                 fontSize = 24.sp,
 
                 fontWeight =
-                    FontWeight.SemiBold
+                    FontWeight.SemiBold,
+
+                color = MenuGold,
+
+                textAlign =
+                    TextAlign.Center
             )
 
 
@@ -475,21 +693,11 @@ private fun OpcaoInicial(
 
                 fontSize = 16.sp,
 
-                color =
-                    MaterialTheme
-                        .colorScheme
-                        .onSurfaceVariant
+                color = MenuWhite,
+
+                textAlign =
+                    TextAlign.Center
             )
-
-
-            Button(
-                onClick = onClick
-            ) {
-
-                Text(
-                    text = textoBotao
-                )
-            }
         }
     }
 }

@@ -451,11 +451,6 @@ class CardapioViewModel(
     }
 
 
-    /*
-     * ======================================================
-     * LIMPAR SELEÇÃO
-     * ======================================================
-     */
 
     fun limparSelecaoBebidas() {
 
@@ -464,16 +459,6 @@ class CardapioViewModel(
     }
 
 
-    /*
-     * ======================================================
-     * OBSERVAR BEBIDAS DO CARDÁPIO ATIVO
-     * ======================================================
-     *
-     * Sempre que o cardápio ativo mudar,
-     * passamos a observar as bebidas
-     * pertencentes ao novo cardápio.
-     */
-
     private fun observarBebidasCardapioAtivo() {
 
         viewModelScope.launch {
@@ -481,10 +466,6 @@ class CardapioViewModel(
             cardapioDao
                 .observarCardapioAtivo()
                 .collectLatest { cardapio ->
-
-                    /*
-                     * Nenhum cardápio ativo.
-                     */
 
                     if (cardapio == null) {
 
